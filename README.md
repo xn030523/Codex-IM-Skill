@@ -4,6 +4,8 @@ Telegram-only bridge for Claude Code or Codex.
 
 [中文文档](README_CN.md)
 
+[![Star History Chart](https://api.star-history.com/svg?repos=xn030523/Codex-IM-Skill&type=Date)](https://star-history.com/#xn030523/Codex-IM-Skill&Date)
+
 ## Install
 
 Recommended:

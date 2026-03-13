@@ -4,6 +4,8 @@
 
 [English](README.md)
 
+[![Star History Chart](https://api.star-history.com/svg?repos=xn030523/Codex-IM-Skill&type=Date)](https://star-history.com/#xn030523/Codex-IM-Skill&Date)
+
 ## 安装
 
 推荐：
