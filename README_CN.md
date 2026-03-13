@@ -37,6 +37,24 @@ bash scripts/install-codex.sh
 4. 让 setup 自动检测 `Chat ID` 并写入 `~/.codex-skill/config.env`
 5. 运行 `codex-skill start`
 
+## 效果图
+
+### 1. Setup 写入配置
+
+![Setup 写入配置](img/01-setup-config.png)
+
+### 2. Start 启动成功
+
+![Start 启动成功](img/02-start-success.png)
+
+### 3. Telegram 对话效果
+
+![Telegram 对话效果](img/03-telegram-chat.png)
+
+### 4. Telegram 执行任务
+
+![Telegram 执行任务](img/04-telegram-task.png)
+
 ## Telegram
 
 获取 bot token：
