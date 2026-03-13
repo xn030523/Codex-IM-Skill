@@ -41,6 +41,49 @@ function Ensure-Dirs {
     }
 }
 
+function Get-Runtime {
+    $configPath = Join-Path $CtiHome 'config.env'
+    if (-not (Test-Path $configPath)) { return 'claude' }
+    $line = Get-Content $configPath | Where-Object { $_ -match '^CTI_RUNTIME=' } | Select-Object -First 1
+    if (-not $line) { return 'claude' }
+    return (($line -split '=', 2)[1]).Trim().Trim('"').Trim("'")
+}
+
+function Ensure-Dependencies {
+    $npmPath = (Get-Command npm -ErrorAction SilentlyContinue).Source
+    if (-not $npmPath) {
+        Write-Error "npm not found in PATH. Install Node.js/npm first."
+        exit 1
+    }
+
+    $runtime = Get-Runtime
+    $needInstall = $false
+
+    if (-not (Test-Path (Join-Path $SkillDir 'node_modules'))) {
+        $needInstall = $true
+    }
+    if (-not $needInstall -and -not (Test-Path (Join-Path $SkillDir 'node_modules\\claude-to-im'))) {
+        $needInstall = $true
+    }
+    if (-not $needInstall -and -not (Test-Path (Join-Path $SkillDir 'node_modules\\@anthropic-ai\\claude-agent-sdk'))) {
+        $needInstall = $true
+    }
+    if (-not $needInstall -and ($runtime -eq 'codex' -or $runtime -eq 'auto') -and -not (Test-Path (Join-Path $SkillDir 'node_modules\\@openai\\codex-sdk'))) {
+        $needInstall = $true
+    }
+
+    if ($needInstall) {
+        Write-Host "Installing skill dependencies..."
+        Push-Location $SkillDir
+        if (Test-Path (Join-Path $SkillDir 'package-lock.json')) {
+            npm ci --include=dev
+        } else {
+            npm install --include=dev
+        }
+        Pop-Location
+    }
+}
+
 function Ensure-Built {
     if (-not (Test-Path $DaemonMjs)) {
         Write-Host "Building daemon bundle..."
@@ -234,6 +277,7 @@ function Start-Fallback {
 switch ($Command) {
     'start' {
         Ensure-Dirs
+        Ensure-Dependencies
         Ensure-Built
 
         $existingPid = Read-Pid
@@ -342,6 +386,7 @@ switch ($Command) {
 
     'install-service' {
         Ensure-Dirs
+        Ensure-Dependencies
         Ensure-Built
 
         $mgr = Find-ServiceManager

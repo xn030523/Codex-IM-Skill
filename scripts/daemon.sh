@@ -17,6 +17,45 @@ LOG_FILE="$CTI_HOME/logs/bridge.log"
 
 ensure_dirs() { mkdir -p "$CTI_HOME"/{data,logs,runtime,data/messages}; }
 
+read_runtime() {
+  local runtime
+  runtime=$(grep "^CTI_RUNTIME=" "$CTI_HOME/config.env" 2>/dev/null | head -1 | cut -d= -f2- | tr -d "'" | tr -d '"' || true)
+  echo "${runtime:-claude}"
+}
+
+ensure_dependencies() {
+  if ! command -v npm >/dev/null 2>&1; then
+    echo "npm not found in PATH. Install Node.js/npm first."
+    exit 1
+  fi
+
+  local runtime
+  runtime=$(read_runtime)
+  local need_install=0
+
+  if [ ! -d "$SKILL_DIR/node_modules" ]; then
+    need_install=1
+  fi
+  if [ "$need_install" = "0" ] && [ ! -d "$SKILL_DIR/node_modules/claude-to-im" ]; then
+    need_install=1
+  fi
+  if [ "$need_install" = "0" ] && [ ! -d "$SKILL_DIR/node_modules/@anthropic-ai/claude-agent-sdk" ]; then
+    need_install=1
+  fi
+  if [ "$need_install" = "0" ] && { [ "$runtime" = "codex" ] || [ "$runtime" = "auto" ]; } && [ ! -d "$SKILL_DIR/node_modules/@openai/codex-sdk" ]; then
+    need_install=1
+  fi
+
+  if [ "$need_install" = "1" ]; then
+    echo "Installing skill dependencies..."
+    if [ -f "$SKILL_DIR/package-lock.json" ]; then
+      (cd "$SKILL_DIR" && npm ci --include=dev)
+    else
+      (cd "$SKILL_DIR" && npm install --include=dev)
+    fi
+  fi
+}
+
 ensure_built() {
   local need_build=0
   if [ ! -f "$SKILL_DIR/dist/daemon.mjs" ]; then
@@ -128,6 +167,7 @@ esac
 case "${1:-help}" in
   start)
     ensure_dirs
+    ensure_dependencies
     ensure_built
 
     # 关键逻辑：启动前先检测平台级 supervisor 或 PID，避免重复拉起多个 bridge 实例。
