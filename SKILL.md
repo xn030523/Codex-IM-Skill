@@ -5,11 +5,11 @@ description: |
   user can chat with Claude from their phone. Use for: setting up, starting, stopping,
   or diagnosing the codex-skill bridge daemon; forwarding Claude replies to a messaging
   app; any phrase like "codex-skill", "codex skill", "bridge", "消息推送", "消息转发", "桥接",
-  "手机上看claude", "启动后台服务", "诊断", "查看日志", "配置".
-  Subcommands: setup, start, stop, status, logs, reconfigure, doctor.
+  "手机上看claude", "启动后台服务", "配置".
+  Subcommands: setup, start, stop, status.
   Do NOT use for: building standalone bots, webhook integrations, or coding with IM
   platform SDKs — those are regular programming tasks.
-argument-hint: "setup | start | stop | status | logs [N] | reconfigure | doctor"
+argument-hint: "setup | start | stop | status"
 allowed-tools:
   - Bash
   - Read
@@ -38,13 +38,7 @@ Parse the user's intent from `$ARGUMENTS` into one of these subcommands:
 | `start`, `start bridge`, `启动`, `启动桥接`                                | start       |
 | `stop`, `stop bridge`, `停止`, `停止桥接`                                  | stop        |
 | `status`, `bridge status`, `状态`, `运行状态`, `怎么看桥接的运行状态`      | status      |
-| `logs`, `logs 200`, `查看日志`, `查看日志 200`                             | logs        |
-| `reconfigure`, `修改配置`, `帮我改一下 token`, `换个 bot`                  | reconfigure |
-| `doctor`, `diagnose`, `诊断`, `挂了`, `没反应了`, `bot 没反应`, `出问题了` | doctor      |
-
-**Disambiguation: `status` vs `doctor`** — Use `status` when the user just wants to check if the bridge is running (informational). Use `doctor` when the user reports a problem or suspects something is broken (diagnostic). When in doubt and the user describes a symptom (e.g., "没反应了", "挂了"), prefer `doctor`.
-
-Extract optional numeric argument for `logs` (default 50).
+| `修改配置`, `重新配置`, `帮我改一下 token`, `换个 bot`, `挂了`, `没反应了`, `bot 没反应`, `出问题了` | status       |
 
 Before asking users for any platform credentials, first read the Telegram setup section in `SKILL_DIR/README.md` to get the detailed step-by-step guidance. Present the relevant guide text to the user via AskUserQuestion — users often don't know where to find bot tokens or chat IDs, so showing the guide upfront saves back-and-forth.
 
@@ -57,7 +51,7 @@ Before executing any subcommand, detect which environment you are running in:
 
 You can test this by checking if AskUserQuestion is in your available tools list.
 
-## Config check (applies to `start`, `stop`, `status`, `logs`, `reconfigure`, `doctor`)
+## Config check (applies to `start`, `stop`, `status`)
 
 Before running any subcommand other than `setup`, check if `~/.codex-skill/config.env` exists:
 
@@ -115,8 +109,8 @@ Run: `bash "SKILL_DIR/scripts/daemon.sh" start`
 
 Show the output to the user. If it fails, tell the user:
 
-- Run `doctor` to diagnose: `/codex-skill doctor`
-- Check recent logs: `/codex-skill logs`
+- Run `status`: `/codex-skill status`
+- Check the log file: `~/.codex-skill/logs/bridge.log`
 
 ### `stop`
 
@@ -125,33 +119,6 @@ Run: `bash "SKILL_DIR/scripts/daemon.sh" stop`
 ### `status`
 
 Run: `bash "SKILL_DIR/scripts/daemon.sh" status`
-
-### `logs`
-
-Extract optional line count N from arguments (default 50).
-Run: `bash "SKILL_DIR/scripts/daemon.sh" logs N`
-
-### `reconfigure`
-
-1. Read current config from `~/.codex-skill/config.env`
-2. Show current settings in a clear table format, with all secrets masked (only last 4 chars visible)
-3. Use AskUserQuestion to ask what the user wants to change
-4. When collecting new values, read the Telegram setup section in `SKILL_DIR/README.md` and present the relevant guide for that field
-5. Update the config file atomically (write to tmp, rename)
-6. Re-validate any changed tokens
-7. Remind user: "Run `/codex-skill stop` then `/codex-skill start` to apply the changes."
-
-### `doctor`
-
-Run: `bash "SKILL_DIR/scripts/doctor.sh"`
-
-Show results and suggest fixes for any failures. Common fixes:
-
-- SDK cli.js missing → `cd SKILL_DIR && npm install`
-- dist/daemon.mjs stale → `cd SKILL_DIR && npm run build`
-- Config missing → run `setup`
-
-For more complex issues (messages not received, permission timeouts, high memory, stale PID files), read the `Troubleshooting` section in `SKILL_DIR/README.md`.
 
 ## Notes
 

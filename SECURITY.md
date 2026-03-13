@@ -11,8 +11,8 @@ The `.gitignore` excludes `config.env` to prevent accidental commits.
 All tokens and secrets are masked in log output and terminal display. Only the last 4 characters of any secret are shown (e.g., `****abcd`). This applies to:
 
 - Setup wizard confirmation output
-- `reconfigure` command display
-- `logs` command output
+- `setup` command display
+- failure output that includes log snippets
 - Error messages
 
 ## Threat Model
@@ -36,7 +36,7 @@ To rotate compromised or expired tokens:
 
 1. Revoke the old token on the IM platform
 2. Generate a new token
-3. Run `/codex-skill reconfigure` to update the stored credentials
+3. Run `/codex-skill setup` to update the stored credentials
 4. Run `/codex-skill stop` then `/codex-skill start` to apply changes
 
 ## Leak Response
@@ -45,6 +45,6 @@ If you suspect a token has been leaked:
 
 1. **Immediately revoke** the token on the respective IM platform
 2. Run `/codex-skill stop` to halt the daemon
-3. Run `/codex-skill reconfigure` with a new token
+3. Run `/codex-skill setup` with a new token
 4. Review `~/.codex-skill/logs/` for unauthorized activity
 5. Run `/codex-skill start` with the new credentials

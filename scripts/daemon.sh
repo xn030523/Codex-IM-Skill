@@ -2,8 +2,8 @@
 # 功能入口：
 # - Unix 平台统一命令入口，根据系统类型分发给 macOS / Linux / Windows 对应 supervisor。
 # 输入输出：
-# - 输入为 start/stop/status/logs 命令及可选日志行数。
-# - 输出为后台进程控制结果、状态文件内容和脱敏后的日志片段。
+# - 输入为 start/stop/status 进程管理命令。
+# - 输出为后台进程控制结果、状态文件内容和失败提示。
 # 边界与异常：
 # - 如果 bundle 不存在或过期会自动重建；启动失败时会给出最近日志和修复建议。
 set -euo pipefail
@@ -138,8 +138,8 @@ show_failure_help() {
   tail -20 "$LOG_FILE" 2>/dev/null || echo "  (no log file)"
   echo ""
   echo "Next steps:"
-  echo "  1. Run diagnostics:  bash \"$SKILL_DIR/scripts/doctor.sh\""
-  echo "  2. Check full logs:  bash \"$SKILL_DIR/scripts/daemon.sh\" logs 100"
+  echo "  1. Check status:     bash \"$SKILL_DIR/scripts/daemon.sh\" status"
+  echo "  2. Check log file:   $LOG_FILE"
   echo "  3. Rebuild bundle:   cd \"$SKILL_DIR\" && npm run build"
 }
 
@@ -258,12 +258,7 @@ case "${1:-help}" in
     fi
     ;;
 
-  logs)
-    N="${2:-50}"
-    tail -n "$N" "$LOG_FILE" 2>/dev/null | sed -E 's/(token|secret|password)(["\\x27]?\s*[:=]\s*["\\x27]?)[^ "]+/\1\2*****/gi'
-    ;;
-
   *)
-    echo "Usage: daemon.sh {start|stop|status|logs [N]}"
+    echo "Usage: daemon.sh {start|stop|status}"
     ;;
 esac

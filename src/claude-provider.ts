@@ -674,7 +674,7 @@ export class SDKLLMProvider implements LLMProvider {
                 "• Claude CLI version too old (need >= 2.x) — run: claude --version",
                 "• Missing ANTHROPIC_* env vars in daemon — check config.env",
                 "",
-                "Run `/codex-skill doctor` to diagnose.",
+                "Run `/codex-skill status` and check ~/.codex-skill/logs/bridge.log.",
               );
               userMessage = lines.join("\n");
             } else {

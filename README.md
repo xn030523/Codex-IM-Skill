@@ -71,15 +71,13 @@ Notes:
 - `codex-skill start`: start the bridge daemon
 - `codex-skill stop`: stop the bridge daemon
 - `codex-skill status`: show process status
-- `codex-skill logs`: show recent logs
-- `codex-skill doctor`: run diagnostics
 
 ## Troubleshooting
 
 `Bridge won't start`
-- Run `codex-skill doctor`
+- Run `codex-skill status`
 - Check `node --version`
-- Check `codex-skill logs`
+- Check `~/.codex-skill/logs/bridge.log`
 
 `No messages received`
 - Re-check the Telegram bot token

@@ -6,16 +6,13 @@
   管理 Windows 平台上的 bridge 进程。
   优先使用 Windows Service，找不到服务管理器时退回后台进程模式。
   日常使用请走外层入口：
-    powershell -File scripts\daemon.ps1 start|stop|status|logs
+    powershell -File scripts\daemon.ps1 start|stop|status
 #>
 
 param(
     [Parameter(Position=0)]
-    [ValidateSet('start','stop','status','logs','install-service','uninstall-service','help')]
-    [string]$Command = 'help',
-
-    [Parameter(Position=1)]
-    [int]$LogLines = 50
+    [ValidateSet('start','stop','status','install-service','uninstall-service','help')]
+    [string]$Command = 'help'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -141,8 +138,8 @@ function Show-FailureHelp {
     }
     Write-Host ""
     Write-Host "Next steps:"
-    Write-Host "  1. Run diagnostics:  bash `"$SkillDir/scripts/doctor.sh`""
-    Write-Host "  2. Check full logs:  powershell -File `"$SkillDir\scripts\daemon.ps1`" logs 100"
+    Write-Host "  1. Check status:     powershell -File `"$SkillDir\scripts\daemon.ps1`" status"
+    Write-Host "  2. Check log file:   $LogFile"
     Write-Host "  3. Rebuild bundle:   cd `"$SkillDir`"; npm run build"
 }
 
@@ -369,21 +366,6 @@ switch ($Command) {
         }
     }
 
-    'logs' {
-        if (Test-Path $LogFile) {
-            # 关键逻辑：显示日志前再次做简单脱敏，降低用户贴日志时泄露密钥的风险。
-            Get-Content $LogFile -Tail $LogLines | ForEach-Object {
-                $line = $_
-                $line = $line -replace '([Tt]oken\s*[:=]\s*)\S+', '$1*****'
-                $line = $line -replace '([Ss]ecret\s*[:=]\s*)\S+', '$1*****'
-                $line = $line -replace '([Pp]assword\s*[:=]\s*)\S+', '$1*****'
-                $line
-            }
-        } else {
-            Write-Host "No log file found at $LogFile"
-        }
-    }
-
     'install-service' {
         Ensure-Dirs
         Ensure-Dependencies
@@ -395,9 +377,8 @@ switch ($Command) {
             Write-Host "  WinSW:  https://github.com/winsw/winsw/releases"
             Write-Host "  NSSM:   https://nssm.cc/download"
             Write-Host ""
-            Write-Host "After installing, add it to PATH and re-run:"
-            Write-Host "  powershell -File `"$PSCommandPath`" install-service"
-            exit 1
+        Write-Host "After installing, use the advanced Windows service flow if needed."
+        exit 1
         }
 
         switch ($mgr.type) {
@@ -435,14 +416,11 @@ switch ($Command) {
     }
 
     'help' {
-        Write-Host "Usage: daemon.ps1 {start|stop|status|logs [N]|install-service|uninstall-service}"
+        Write-Host "Usage: daemon.ps1 {start|stop|status}"
         Write-Host ""
         Write-Host "Commands:"
         Write-Host "  start             Start the bridge daemon"
         Write-Host "  stop              Stop the bridge daemon"
         Write-Host "  status            Show bridge status"
-        Write-Host "  logs [N]          Show last N log lines (default 50)"
-        Write-Host "  install-service   Install as Windows Service (requires WinSW or NSSM)"
-        Write-Host "  uninstall-service Remove the Windows Service"
     }
 }

@@ -71,15 +71,13 @@ npm run tg:setup -- --token YOUR_BOT_TOKEN --runtime codex --workdir "C:\path\to
 - `codex-skill start`：启动守护进程
 - `codex-skill stop`：停止守护进程
 - `codex-skill status`：查看运行状态
-- `codex-skill logs`：查看最近日志
-- `codex-skill doctor`：运行诊断
 
 ## 故障排查
 
 `启动失败`
-- 运行 `codex-skill doctor`
+- 运行 `codex-skill status`
 - 检查 `node --version`
-- 检查 `codex-skill logs`
+- 检查 `~/.codex-skill/logs/bridge.log`
 
 `收不到消息`
 - 重新检查 Telegram bot token

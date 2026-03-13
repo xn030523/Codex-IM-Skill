@@ -123,7 +123,7 @@ interface StatusInfo {
 
 function writeStatus(info: StatusInfo): void {
   fs.mkdirSync(RUNTIME_DIR, { recursive: true });
-  // 关键逻辑：保留旧状态中的 lastExitReason 等字段，便于 status/doctor 诊断。
+  // 关键逻辑：保留旧状态中的 lastExitReason 等字段，便于 status 和日志排障。
   let existing: Record<string, unknown> = {};
   try {
     existing = JSON.parse(fs.readFileSync(STATUS_FILE, "utf-8"));

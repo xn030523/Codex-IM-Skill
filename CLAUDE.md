@@ -10,8 +10,8 @@ When replying to user-reported issues, always include a **self-help prompt** at 
 > 请帮我排查 codex-skill 桥接服务的问题。
 > 1. 读取 ~/.codex-skill/logs/bridge.log 最近 50 行日志
 > 2. 读取 ~/.codex-skill/config.env 检查配置是否正确
-> 3. 运行 bash ~/.claude/skills/codex-skill/scripts/doctor.sh 并分析输出
-> 4. 根据日志和配置给出具体的修复建议
+> 3. 运行 bash ~/.claude/skills/codex-skill/scripts/daemon.sh status
+> 4. 根据状态、日志和配置给出具体的修复建议
 > ```
 
 This approach:
